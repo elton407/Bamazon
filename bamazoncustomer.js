@@ -28,7 +28,7 @@ var userInputs = [];
 
 function buyItem(){
 
-    console.log("Selecting all products...\n");
+    //console.log("Selecting all products...\n");
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         
@@ -42,9 +42,7 @@ function buyItem(){
         for (var i = 0; i < res.length; i++) {
           myItemIdlist.push(myItems[i].item_id);
         }
-
 //console.log(myItemIdlist);
-
 inquirer.prompt(
   [{
   name:"itemId",
@@ -56,7 +54,7 @@ inquirer.prompt(
       userId = parseInt(value);
       validateQuantity();
       return true;
-      console.log("response is" + res[i].item_id);
+      //console.log("response is" + res[i].item_id);
      }//end of if 
    }//end of loop
    return "Enter a valid Product ID";
@@ -72,7 +70,7 @@ inquirer.prompt(
     for (var i = 0; i < res.length; i++) {
       if(value <= res[i].stock_quantity){
         //console.log(res[i].stock_quantity);
-        userQnt = res[i].stock_quantity;
+        userQnt = value;
         return true;
       }//edn of 2nd if
       }//end of if  
@@ -98,7 +96,6 @@ inquirer.prompt(
         idSelected = parseInt(userInputs[0].item_id);
         //console.log(quantLeft);
         //});
-
           var query1 = 
 
           connection.query(
@@ -112,11 +109,13 @@ inquirer.prompt(
             ],
             function(error) {
               if (error) throw err;
-              console.log(quantLeft);
-              console.log("USERINPUTID " + idSelected);
+              //console.log(quantLeft);
+              //console.log("USERINPUTID " + idSelected);
+              checkoutPrice();
               console.log("Your purchase was made successfully!");
+              console.log()
               //console.log(res.affectedRows + "ROWS AFFECTED");
-              console.log(query1.sql);
+              //console.log(query1.sql);
               setTimeout(showList, 500);
               //for (var i = 0; i < res.length; i++) {
               //console.log("Product ID: " + res[i].item_id + " || Product: " + res[i].product_name + " Price: " + res[i].price + " Department: " + res[i].department_name + " Quantity: " + res[i].stock_quantity);
@@ -143,21 +142,26 @@ function validateQuantity (){
           });
 }
 
-
-
-
+function checkoutPrice() {
+  var query3 = "select price FROM products WHERE ?"
+  connection.query(query3, {item_id: userId}, function (err,res){
+    var totalPrice = res[0].price * userQnt;
+    console.log("The total price of your purchase is: $" + totalPrice);
+  });
+}
 
 //buyItem();
 function showList (){
 connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
     for (var i = 0; i < res.length; i++) {
+      console.log("  ");
       console.log("Product ID: " + res[i].item_id + " || Product: " + res[i].product_name + " Price: " + res[i].price + " Department: " + res[i].department_name + " Quantity: " + res[i].stock_quantity);
       console.log("======================================================================================")
     }
     //console.log(res[0].product_name);
   });
 }
-function start(){setTimeout(buyItem, 100)}
+function start(){setTimeout(buyItem, 1000)}
 start();
 
