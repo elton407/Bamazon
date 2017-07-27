@@ -18,8 +18,8 @@ connection.connect(function(err) {
   console.log("connected as id " + connection.threadId);
   showList();
 });
-
-
+var userId;
+var quantityRemaining;
 var initalStock;
 var idSelected;
 var userQnt;
@@ -43,7 +43,7 @@ function buyItem(){
           myItemIdlist.push(myItems[i].item_id);
         }
 
-console.log(myItemIdlist);
+//console.log(myItemIdlist);
 
 inquirer.prompt(
   [{
@@ -53,6 +53,8 @@ inquirer.prompt(
   validate: function (value){
    for (var i = 0; i < res.length; i++) {
      if(value == res[i].item_id) {
+      userId = parseInt(value);
+      validateQuantity();
       return true;
       console.log("response is" + res[i].item_id);
      }//end of if 
@@ -65,15 +67,18 @@ inquirer.prompt(
   type:"input",
   message:"How many Would you like to purchase",
   validate: function (value){
+    var result = value % 1;
+    if (value > 0 && result == 0 && value <= quantityRemaining){
     for (var i = 0; i < res.length; i++) {
       if(value <= res[i].stock_quantity){
         //console.log(res[i].stock_quantity);
         userQnt = res[i].stock_quantity;
         return true;
+      }//edn of 2nd if
       }//end of if  
     }//end of loop
     return "Sorry that is an insufficient ammount";
-  }//ohter validate function
+  }//end ohter validate function
 //q2
 //end of prompt
 }]).then(
@@ -84,11 +89,11 @@ inquirer.prompt(
       }
       userInputs.pop();
       userInputs.push(promptInputs);
-      console.log(userInputs);
+      //console.log(userInputs);
 
         var query = "SELECT stock_quantity from products where?";
         connection.query(query, {item_id: results.itemId}, function (err,res){
-
+        initalStock = parseInt(res[0].stock_quantity);
         quantLeft = parseInt(res[0].stock_quantity - userInputs[0].stock_quantity);
         idSelected = parseInt(userInputs[0].item_id);
         //console.log(quantLeft);
@@ -112,7 +117,7 @@ inquirer.prompt(
               console.log("Your purchase was made successfully!");
               //console.log(res.affectedRows + "ROWS AFFECTED");
               console.log(query1.sql);
-              showList();
+              setTimeout(showList, 500);
               //for (var i = 0; i < res.length; i++) {
               //console.log("Product ID: " + res[i].item_id + " || Product: " + res[i].product_name + " Price: " + res[i].price + " Department: " + res[i].department_name + " Quantity: " + res[i].stock_quantity);
               //console.log("======================================================================================")
@@ -123,17 +128,26 @@ inquirer.prompt(
             );
 });
 
-
-      buyItem();
+      start();
     }//end of results function
 );//end of .then 
-
-
   
 });//end of connection query
 }//end of buy item function
 
-buyItem();
+function validateQuantity (){
+    var query2 = "SELECT stock_quantity from products where ?";
+        connection.query(query2, {item_id: userId}, function (err,res){
+          quantityRemaining = parseInt(res[0].stock_quantity);
+          console.log("The quantity of this product is currently: " + quantityRemaining);
+          });
+}
+
+
+
+
+
+//buyItem();
 function showList (){
 connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
@@ -144,4 +158,6 @@ connection.query("SELECT * FROM products", function(err, res) {
     //console.log(res[0].product_name);
   });
 }
+function start(){setTimeout(buyItem, 100)}
+start();
 
