@@ -21,7 +21,7 @@ connection.connect(function(err) {
 var userId;
 var quantityRemaining;
 var initalStock;
-var idSelected;
+//var idSelected;
 var userQnt;
 var quantLeft;
 var userInputs = [];
@@ -91,9 +91,9 @@ inquirer.prompt(
 
         var query = "SELECT stock_quantity from products where?";
         connection.query(query, {item_id: results.itemId}, function (err,res){
-        initalStock = parseInt(res[0].stock_quantity);
+        //initalStock = parseInt(res[0].stock_quantity);
         quantLeft = parseInt(res[0].stock_quantity - userInputs[0].stock_quantity);
-        idSelected = parseInt(userInputs[0].item_id);
+        //idSelected = parseInt(userInputs[0].item_id);
         //console.log(quantLeft);
         //});
           var query1 = 
